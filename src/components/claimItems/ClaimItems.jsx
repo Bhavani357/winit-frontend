@@ -96,15 +96,24 @@ const ClaimItems = () => {
     }
 
     const handleSaveClaims = ()=>{
-        
+
     }
 
     return (
         <div>
-            <div>
-                {/* Top container form logic */}
+            <div className='top-container'>
+                <label htmlFor='claimDate'>Claim Date</label>
+                <input type='text' id='claimDate'/>
+                <label htmlFor='description'>Claim Description</label>
+                <input type='text' id='description'/><br/>
+                <label htmlFor='startDate'>Activity Start Date</label>
+                <input type='date' id='startDate'/>
+                <label htmlFor='endDate'>Acivity End Date</label>
+                <input type='date' id='endDate'/><br/>
+                <label htmlFor='claimtype'>ClaimType</label>
+                <input type='text' id='claimtype'/><br/>
             </div>
-            <div>
+            <div className='bottom-container'>
                 <div className='add-service-claim-item'>
                     <p>Service Claim Items</p>
                     <button onClick={handlePopUpToggle}>Add Service Claim Item</button>
