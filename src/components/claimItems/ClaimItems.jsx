@@ -1,20 +1,38 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useLocation, useNavigate } from 'react-router-dom';
 import './ClaimItems.css';
-import { useNavigate } from 'react-router-dom';
 
 const ClaimItems = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const [isAddServiceClicked, setAddServiceClicked] = useState(false);
     const [claimItemsData, setClaimItemsData] = useState([]);
     const [formData, setFormData] = useState({
-        claimId: 1, // You can adjust this based on your actual data
+        claimId: '',
         expenseCategory: '',
         name: '',
         amount: '',
         startDate: '',
         endDate: ''
     });
+
+    const { claim } = location.state || {};
+
+    useEffect(() => {
+        if (claim) {
+            setFormData(prevData => ({
+                ...prevData,
+                claimId: claim.id,
+                expenseCategory: '', // Or some default value if necessary
+                name: '',
+                amount: '',
+                startDate: '',
+                endDate: ''
+            }));
+            fetchClaimItems(claim.id);
+        }
+    }, [claim]);
 
     const handlePopUpToggle = () => {
         setAddServiceClicked(!isAddServiceClicked);
@@ -30,8 +48,7 @@ const ClaimItems = () => {
 
     const handleFormSubmit = async (e) => {
         e.preventDefault();
-        
-        // Prepare the data for submission
+
         const payload = {
             claimId: formData.claimId,
             expenseCategory: formData.expenseCategory,
@@ -40,7 +57,6 @@ const ClaimItems = () => {
             startDate: formData.startDate,
             endDate: formData.endDate
         };
-        console.log(payload)
 
         try {
             const response = await fetch('http://localhost:5000/api/v1/users/claimItem', {
@@ -54,7 +70,7 @@ const ClaimItems = () => {
             if (response.ok) {
                 console.log('Service claim item added successfully');
                 setAddServiceClicked(false);
-                fetchClaimItems(); // Refresh the list after adding
+                fetchClaimItems(formData.claimId); // Refresh the list after adding
             } else {
                 console.error('Failed to add service claim item');
             }
@@ -63,10 +79,9 @@ const ClaimItems = () => {
         }
     };
 
-    const fetchClaimItems = async () => {
+    const fetchClaimItems = async (claimId) => {
         try {
-            const response = await axios.get('http://localhost:5000/api/v1/users/getClaimItems');
-            console.log(response.data.claimItems)
+            const response = await axios.get(`http://localhost:5000/api/v1/users/getClaimItems/${claimId}`);
             setClaimItemsData(response.data.claimItems);
         } catch (error) {
             console.error('Error fetching claim items:', error);
@@ -78,7 +93,7 @@ const ClaimItems = () => {
             const response = await axios.delete(`http://localhost:5000/api/v1/users/deleteClaimItem/${id}`);
             if (response.status === 200) {
                 console.log('Claim item deleted successfully');
-                fetchClaimItems(); // Refresh the list after deletion
+                fetchClaimItems(formData.claimId); // Refresh the list after deletion
             } else {
                 console.error('Failed to delete claim item');
             }
@@ -87,31 +102,27 @@ const ClaimItems = () => {
         }
     };
 
-    useEffect(() => {
-        fetchClaimItems();
-    }, []);
+    const handleBackToHome = () => {
+        navigate('/');
+    };
 
-    const handleBackToHome = ()=>{
-        navigate('/')
-    }
-
-    const handleSaveClaims = ()=>{
-
-    }
+    const handleSaveClaims = () => {
+        // Implement save functionality here
+    };
 
     return (
         <div>
             <div className='top-container'>
                 <label htmlFor='claimDate'>Claim Date</label>
-                <input type='text' id='claimDate'/>
+                <input type='text' id='claimDate' value={claim ? claim.claimDate : ''} readOnly />
                 <label htmlFor='description'>Claim Description</label>
-                <input type='text' id='description'/><br/>
+                <input type='text' id='description' value={claim ? claim.description : ''} readOnly /><br/>
                 <label htmlFor='startDate'>Activity Start Date</label>
-                <input type='date' id='startDate'/>
-                <label htmlFor='endDate'>Acivity End Date</label>
-                <input type='date' id='endDate'/><br/>
-                <label htmlFor='claimtype'>ClaimType</label>
-                <input type='text' id='claimtype'/><br/>
+                <input type='date' id='startDate' value={formData.startDate} onChange={handleInputChange} />
+                <label htmlFor='endDate'>Activity End Date</label>
+                <input type='date' id='endDate' value={formData.endDate} onChange={handleInputChange} /><br/>
+                <label htmlFor='claimtype'>Claim Type</label>
+                <input type='text' id='claimtype' value={claim ? claim.claimType : ''} readOnly /><br/>
             </div>
             <div className='bottom-container'>
                 <div className='add-service-claim-item'>
@@ -132,7 +143,7 @@ const ClaimItems = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {Array.isArray(claimItemsData) && claimItemsData.map((item, index) => (
+                        {claimItemsData.map((item, index) => (
                             <tr key={item.id}>
                                 <td>{index + 1}</td>
                                 <td>{item.expenseCategory}</td>
@@ -167,58 +178,58 @@ const ClaimItems = () => {
                         <form onSubmit={handleFormSubmit}>
                             <input 
                                 type='checkbox' 
-                                id='expenseCategory' 
+                                id='expenseCategoryTravel' 
                                 checked={formData.expenseCategory === 'travel'}
                                 onChange={() => setFormData(prevData => ({
                                     ...prevData,
                                     expenseCategory: 'travel'
                                 }))}
                             />
-                            <label htmlFor='expenseCategory'>Travel</label>
+                            <label htmlFor='expenseCategoryTravel'>Travel</label>
 
                             <input 
                                 type='checkbox' 
-                                id='expenseCategory' 
+                                id='expenseCategoryFood' 
                                 checked={formData.expenseCategory === 'food'}
                                 onChange={() => setFormData(prevData => ({
                                     ...prevData,
                                     expenseCategory: 'food'
                                 }))}
                             />
-                            <label htmlFor='expenseCategory'>Food</label>
+                            <label htmlFor='expenseCategoryFood'>Food</label>
 
                             <input 
                                 type='checkbox' 
-                                id='expenseCategory' 
+                                id='expenseCategoryTransportation' 
                                 checked={formData.expenseCategory === 'transportation'}
                                 onChange={() => setFormData(prevData => ({
                                     ...prevData,
                                     expenseCategory: 'transportation'
                                 }))}
                             />
-                            <label htmlFor='expenseCategory'>Transportation</label><br/>
+                            <label htmlFor='expenseCategoryTransportation'>Transportation</label><br/>
 
                             <input 
                                 type='checkbox' 
-                                id='expenseCategory' 
+                                id='expenseCategoryVenueBooking' 
                                 checked={formData.expenseCategory === 'venueBooking'}
                                 onChange={() => setFormData(prevData => ({
                                     ...prevData,
                                     expenseCategory: 'venueBooking'
                                 }))}
                             />
-                            <label htmlFor='expenseCategory'>Venue Booking</label>
+                            <label htmlFor='expenseCategoryVenueBooking'>Venue Booking</label>
 
                             <input 
                                 type='checkbox' 
-                                id='expenseCategory' 
+                                id='expenseCategoryMiscellaneous' 
                                 checked={formData.expenseCategory === 'miscellaneous'}
                                 onChange={() => setFormData(prevData => ({
                                     ...prevData,
                                     expenseCategory: 'miscellaneous'
                                 }))}
                             />
-                            <label htmlFor='expenseCategory'>Miscellaneous</label><br/>
+                            <label htmlFor='expenseCategoryMiscellaneous'>Miscellaneous</label><br/>
 
                             <label htmlFor='name'>Name</label><br/>
                             <input 
