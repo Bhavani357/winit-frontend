@@ -17,14 +17,14 @@ const ClaimItems = () => {
         endDate: ''
     });
 
-    const { claim } = location.state || {};
+    const claim = location.state?.claim;
 
     useEffect(() => {
         if (claim) {
             setFormData(prevData => ({
                 ...prevData,
                 claimId: claim.id,
-                expenseCategory: '', // Or some default value if necessary
+                expenseCategory: '',
                 name: '',
                 amount: '',
                 startDate: '',
@@ -43,6 +43,13 @@ const ClaimItems = () => {
         setFormData(prevData => ({
             ...prevData,
             [id]: value
+        }));
+    };
+
+    const handleCheckboxChange = (category) => {
+        setFormData(prevData => ({
+            ...prevData,
+            expenseCategory: category
         }));
     };
 
@@ -81,8 +88,9 @@ const ClaimItems = () => {
 
     const fetchClaimItems = async (claimId) => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/v1/users/getClaimItems/${claimId}`);
-            setClaimItemsData(response.data.claimItems);
+            const response = await axios.get(`http://localhost:5000/api/v1/users/getClaim/${claimId}`);
+            console.log(response.data);
+            setClaimItemsData(response.data.claim);
         } catch (error) {
             console.error('Error fetching claim items:', error);
         }
@@ -174,60 +182,50 @@ const ClaimItems = () => {
                         <span className='close-button' onClick={handlePopUpToggle}>&times;</span>
                         <h3>New Service Claim Item</h3>
                         <hr />
-                        <h3>Expense Category</h3>
                         <form onSubmit={handleFormSubmit}>
+                            <h3>Expense Category</h3>
                             <input 
-                                type='checkbox' 
+                                type='radio' 
                                 id='expenseCategoryTravel' 
+                                name='expenseCategory'
                                 checked={formData.expenseCategory === 'travel'}
-                                onChange={() => setFormData(prevData => ({
-                                    ...prevData,
-                                    expenseCategory: 'travel'
-                                }))}
+                                onChange={() => handleCheckboxChange('travel')}
                             />
                             <label htmlFor='expenseCategoryTravel'>Travel</label>
 
                             <input 
-                                type='checkbox' 
+                                type='radio' 
                                 id='expenseCategoryFood' 
+                                name='expenseCategory'
                                 checked={formData.expenseCategory === 'food'}
-                                onChange={() => setFormData(prevData => ({
-                                    ...prevData,
-                                    expenseCategory: 'food'
-                                }))}
+                                onChange={() => handleCheckboxChange('food')}
                             />
                             <label htmlFor='expenseCategoryFood'>Food</label>
 
                             <input 
-                                type='checkbox' 
+                                type='radio' 
                                 id='expenseCategoryTransportation' 
+                                name='expenseCategory'
                                 checked={formData.expenseCategory === 'transportation'}
-                                onChange={() => setFormData(prevData => ({
-                                    ...prevData,
-                                    expenseCategory: 'transportation'
-                                }))}
+                                onChange={() => handleCheckboxChange('transportation')}
                             />
                             <label htmlFor='expenseCategoryTransportation'>Transportation</label><br/>
 
                             <input 
-                                type='checkbox' 
+                                type='radio' 
                                 id='expenseCategoryVenueBooking' 
+                                name='expenseCategory'
                                 checked={formData.expenseCategory === 'venueBooking'}
-                                onChange={() => setFormData(prevData => ({
-                                    ...prevData,
-                                    expenseCategory: 'venueBooking'
-                                }))}
+                                onChange={() => handleCheckboxChange('venueBooking')}
                             />
                             <label htmlFor='expenseCategoryVenueBooking'>Venue Booking</label>
 
                             <input 
-                                type='checkbox' 
+                                type='radio' 
                                 id='expenseCategoryMiscellaneous' 
+                                name='expenseCategory'
                                 checked={formData.expenseCategory === 'miscellaneous'}
-                                onChange={() => setFormData(prevData => ({
-                                    ...prevData,
-                                    expenseCategory: 'miscellaneous'
-                                }))}
+                                onChange={() => handleCheckboxChange('miscellaneous')}
                             />
                             <label htmlFor='expenseCategoryMiscellaneous'>Miscellaneous</label><br/>
 
