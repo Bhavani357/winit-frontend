@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { FaEdit, FaTrash } from 'react-icons/fa'; // Importing icons from react-icons
 import './SubmittedClaims.css'; // Add CSS for styling
+import { useNavigate } from 'react-router-dom';
 
 const SubmittedClaims = () => {
     const [claims, setClaims] = useState([]);
